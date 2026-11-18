@@ -1,0 +1,17 @@
+---
+import Base from '../../layouts/Base.astro';
+import Plate from '../../components/Plate.astro';
+import { posts, fmtDate } from '../../data/posts';
+export function getStaticPaths() { return posts.map((p) => ({ params: { slug: p.slug }, props: { p } })); }
+const { p } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<Base title={p.title}>
+  <article class="py-10 max-w-2xl">
+    <a href={`${base}/blog/`} class="text-xs text-mute hover:text-ember">← All posts</a>
+    <p class="text-mute text-xs mt-10">{fmtDate(p.date)}</p>
+    <h1 class="font-serif text-5xl leading-tight my-4">{p.title}</h1>
+    <Plate hue={p.hue} rw={p.rw} rh={p.rh} src={p.image} alt={`Cover image for ${p.title}`} class="w-full my-8" />
+    {p.body.map((t) => <p class="mb-5 leading-relaxed">{t}</p>)}
+  </article>
+</Base>

@@ -1,27 +1,22 @@
 ---
 import Base from '../layouts/Base.astro';
 import Plate from '../components/Plate.astro';
-import ContactForm from '../components/ContactForm.astro';
 import { works, artist } from '../data/works';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 <Base>
-  <section class="pt-16 pb-12"><p class="text-mute text-xs uppercase tracking-widest">Selected works · Catalogue</p></section>
-  <section id="works" class="pb-24">
+  <section class="pt-10 pb-10">
+    <h1 class="font-serif text-5xl md:text-7xl leading-none">{artist.name}</h1>
+    <p class="text-mute text-xs uppercase tracking-widest mt-4">Selected works</p>
+  </section>
+  <section id="works" class="columns-1 sm:columns-2 lg:columns-3 gap-4 pb-24">
     {works.map((w) => (
-      <a class="row" href={`${base}/works/${w.slug}/`}>
-        <span class="text-mute">No. {w.no}</span>
-        <span class="t">{w.title}</span>
-        <span class="text-mute text-xs hidden sm:block">{w.year} · {w.medium}</span>
-        <Plate hue={w.hue} class="thumb" />
+      <a href={`${base}/works/${w.slug}/`} class="card group block break-inside-avoid mb-6">
+        <Plate hue={w.hue} rw={w.rw} rh={w.rh} src={w.image} alt={`${w.title}, ${w.medium}`} />
+        <div class="flex justify-between text-xs text-mute pt-2 group-hover:text-ember transition-colors">
+          <span>{w.title}</span><span><span class={`dot ${w.status}`} title={w.status}></span>No. {w.no}</span>
+        </div>
       </a>
     ))}
   </section>
-  <section id="about" class="pb-24 max-w-2xl"><h2 class="text-mute text-xs uppercase tracking-widest mb-4">About</h2>
-    <p class="font-serif text-3xl leading-snug">{artist.statement}</p></section>
-  <section id="contact" class="pb-24"><h2 class="text-mute text-xs uppercase tracking-widest mb-6">Contact</h2><ContactForm /></section>
 </Base>
-<script>
-  const root = document.documentElement;
-  addEventListener('pointermove', (e) => { root.style.setProperty('--x', e.clientX + 'px'); root.style.setProperty('--y', e.clientY + 'px'); });
-</script>

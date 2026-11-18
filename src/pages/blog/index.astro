@@ -1,0 +1,23 @@
+---
+import Base from '../../layouts/Base.astro';
+import Plate from '../../components/Plate.astro';
+import { posts, fmtDate } from '../../data/posts';
+import { artist } from '../../data/works';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const sorted = [...posts].sort((a, b) => b.date.localeCompare(a.date));
+---
+<Base title={`Blog · ${artist.name}`}>
+  <section class="py-16">
+    <h1 class="text-mute text-xs uppercase tracking-widest mb-10">Blog</h1>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
+      {sorted.map((p) => (
+        <a href={`${base}/blog/${p.slug}/`} class="card group block">
+          <Plate hue={p.hue} rw={p.rw} rh={p.rh} src={p.image} alt={`Cover image for ${p.title}`} />
+          <p class="text-mute text-xs mt-4">{fmtDate(p.date)}</p>
+          <h2 class="font-serif text-3xl leading-tight group-hover:text-ember transition-colors">{p.title}</h2>
+          <p class="text-mute mt-2">{p.excerpt}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+</Base>

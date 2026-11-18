@@ -10,7 +10,7 @@ const key = import.meta.env.PUBLIC_WEB3FORMS_KEY ?? '';
   <label>Email<input class="field" type="email" name="email" required autocomplete="email" /></label>
   <label>Message<textarea class="field" name="message" rows="4" required>{work ? `I’m interested in No. ${work}.` : ''}</textarea></label>
   <label class="flex gap-3 text-mute text-xs">
-    <input type="checkbox" name="consent" required class="mt-1 accent-[#c8803a]" />
+    <input type="checkbox" name="consent" required class="mt-1 accent-[var(--color-ember)]" />
     <span>I agree that my name and email are used only to reply to this inquiry, and are processed by Web3Forms to deliver it (Data Privacy Act of 2012).</span>
   </label>
   <button class="justify-self-start border border-ember text-ember px-5 py-2 hover:bg-ember hover:text-ink transition" type="submit">Send inquiry</button>

@@ -1,0 +1,15 @@
+---
+import Base from '../layouts/Base.astro';
+import Plate from '../components/Plate.astro';
+import { artist } from '../data/works';
+---
+<Base title={`About · ${artist.name}`}>
+  <section class="py-16 grid md:grid-cols-[1fr_1.4fr] gap-12 items-start max-w-5xl">
+    <Plate hue={30} rw={4} rh={5} alt="Placeholder portrait of the artist" class="w-full max-w-sm" />
+    <div>
+      <h1 class="text-mute text-xs uppercase tracking-widest mb-6">About</h1>
+      <p class="font-serif text-4xl leading-snug mb-8">{artist.statement}</p>
+      <p class="text-mute">Placeholder: add a short biography, education, and exhibitions here.</p>
+    </div>
+  </section>
+</Base>

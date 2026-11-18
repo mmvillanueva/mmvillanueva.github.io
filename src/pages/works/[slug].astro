@@ -13,7 +13,7 @@ const labels = { available: 'Available', reserved: 'Reserved', sold: 'Sold' };
 <Base title={`${w.title} · No. ${w.no}`} glow={w.hue}>
   <a href={`${base}/#works`} class="text-xs text-mute hover:text-ember">← All works</a>
   <article class="grid md:grid-cols-[1.2fr_1fr] gap-12 py-10">
-    <Plate hue={w.hue} class="w-full max-h-[80vh]" />
+    <Plate hue={w.hue} rw={w.rw} rh={w.rh} src={w.image} alt={`${w.title}, ${w.medium}`} class="w-full max-h-[80vh]" />
     <div class="self-end">
       <p class="text-mute">No. {w.no}</p>
       <h1 class="font-serif text-6xl leading-none my-3">{w.title}</h1>
@@ -28,7 +28,9 @@ const labels = { available: 'Available', reserved: 'Reserved', sold: 'Sold' };
     {prev ? <a class="hover:text-ember" href={`${base}/works/${prev.slug}/`}>← {prev.title}</a> : <span />}
     {next ? <a class="hover:text-ember" href={`${base}/works/${next.slug}/`}>{next.title} →</a> : <span />}
   </nav>
+  {w.status === 'available' && (
   <section class="py-16"><h2 class="text-mute text-xs uppercase tracking-widest mb-6">Inquire about No. {w.no}</h2><ContactForm work={w.no} /></section>
+  )}
 </Base>
 <script>
   const b = document.getElementById('reveal')!, p = document.getElementById('price')!;

@@ -1,12 +1,14 @@
 ---
-// Placeholder artwork. Swap for a Sanity image later.
-const { hue = 200, class: cls = '' } = Astro.props;
+// Shows the real image when `src` is set, otherwise a generated placeholder. rw/rh = aspect ratio (no cropping).
+const { hue = 200, rw = 4, rh = 5, src, alt = 'Placeholder artwork', class: cls = '' } = Astro.props;
+const H = Math.round((400 * rh) / rw);
 ---
-<svg class={cls} viewBox="0 0 400 500" role="img" aria-label="Placeholder artwork" xmlns="http://www.w3.org/2000/svg">
+{src ? <img src={src} alt={alt} width={400} height={H} loading="lazy" decoding="async" class={cls} /> : (
+<svg class={cls} viewBox={`0 0 400 ${H}`} role="img" aria-label={alt} xmlns="http://www.w3.org/2000/svg">
   <defs><linearGradient id={`g${hue}`} x1="0" y1="0" x2="1" y2="1">
     <stop offset="0" stop-color={`hsl(${hue} 35% 22%)`} /><stop offset="1" stop-color={`hsl(${(hue + 40) % 360} 45% 10%)`} />
   </linearGradient></defs>
-  <rect width="400" height="500" fill={`url(#g${hue})`} />
-  <circle cx="270" cy="170" r="90" fill={`hsl(${hue} 55% 55% / .35)`} />
-  <rect x="60" y="320" width="280" height="2" fill={`hsl(${hue} 30% 80% / .5)`} />
-</svg>
+  <rect width="400" height={H} fill={`url(#g${hue})`} />
+  <circle cx="270" cy={H * 0.34} r="90" fill={`hsl(${hue} 55% 55% / .35)`} />
+  <rect x="60" y={H * 0.64} width="280" height="2" fill={`hsl(${hue} 30% 80% / .5)`} />
+</svg>)}

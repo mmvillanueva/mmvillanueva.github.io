@@ -4,18 +4,34 @@ import { artist } from '../data/works';
 const { title = `${artist.name} · Selected Works`, glow } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content={artist.statement} /><meta name="color-scheme" content="dark" />
+  <meta name="description" content={artist.statement} /><meta name="color-scheme" content="dark light" />
   <title>{title}</title>
+  <script is:inline>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
-<body class="min-h-screen" style={glow ? `background: radial-gradient(60rem 40rem at 70% 10%, hsl(${glow} 40% 14%), transparent), var(--color-ink)` : ''}>
+<body class:list={['min-h-screen', glow && 'glow']} style={glow ? `--g:${glow}` : undefined}>
   <header class="flex justify-between items-baseline px-6 md:px-12 py-6 text-xs uppercase tracking-widest">
     <a href={`${base}/`} class="hover:text-ember">{artist.name}</a>
-    <nav class="flex gap-6"><a href={`${base}/#works`} class="hover:text-ember">Works</a><a href={`${base}/#about`} class="hover:text-ember">About</a><a href={`${base}/#contact`} class="hover:text-ember">Contact</a></nav>
+    <nav class="flex gap-6 items-baseline">
+      <a href={`${base}/`} class="hover:text-ember">Works</a>
+      <a href={`${base}/about/`} class="hover:text-ember">About</a>
+      <a href={`${base}/blog/`} class="hover:text-ember">Blog</a>
+      <a href={`${base}/contact/`} class="hover:text-ember">Contact</a>
+      <button id="theme" type="button" aria-label="Switch between dark and light theme" class="uppercase tracking-widest text-mute hover:text-ember">
+        <span class="only-dark">Light</span><span class="only-light">Dark</span>
+      </button>
+    </nav>
   </header>
   <main class="px-6 md:px-12"><slot /></main>
   <footer class="px-6 md:px-12 py-12 text-mute text-xs">© {new Date().getFullYear()} {artist.name}. All rights reserved.</footer>
+  <script>
+    document.getElementById('theme')?.addEventListener('click', () => {
+      const r = document.documentElement, next = r.dataset.theme === 'light' ? 'dark' : 'light';
+      r.dataset.theme = next;
+      try { localStorage.setItem('theme', next); } catch {}
+    });
+  </script>
 </body>
 </html>
