@@ -1,0 +1,40 @@
+@import "tailwindcss";
+@import "@fontsource/instrument-serif/400.css";
+@import "@fontsource/instrument-serif/400-italic.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+
+@theme {
+  --color-ink: #141311;
+  --color-ash: #e8e4dc;
+  --color-mute: #8f8a80;
+  --color-line: #2a2723;
+  --color-ember: #c8803a;
+  --font-serif: "Instrument Serif", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+html { background: var(--color-ink); color: var(--color-ash); scroll-behavior: smooth; }
+body { font-family: var(--font-mono); font-size: 14px; line-height: 1.7; }
+::selection { background: var(--color-ember); color: var(--color-ink); }
+:focus-visible { outline: 1px solid var(--color-ember); outline-offset: 3px; }
+
+.row { display: grid; grid-template-columns: 4.5rem 1fr auto; gap: 1rem; align-items: baseline;
+  padding: 1.1rem 0; border-top: 1px solid var(--color-line); transition: padding .3s, color .3s; }
+.row:last-child { border-bottom: 1px solid var(--color-line); }
+.row .t { font-family: var(--font-serif); font-size: clamp(1.8rem, 4.5vw, 3.2rem); line-height: 1.1; }
+.row:hover, .row:focus-visible { padding-left: 1rem; color: var(--color-ember); }
+.row .thumb { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  .row .thumb { display: block; position: fixed; left: 0; top: 0; width: 15rem; z-index: 20; pointer-events: none;
+    opacity: 0; transform: translate(calc(var(--x, 0px) + 24px), calc(var(--y, 0px) - 50%)) scale(.96);
+    transition: opacity .25s, transform .25s ease-out; }
+  .row:hover .thumb, .row:focus-visible .thumb { opacity: 1; transform: translate(calc(var(--x, 0px) + 24px), calc(var(--y, 0px) - 50%)) scale(1); }
+}
+.dot { display: inline-block; width: .55rem; height: .55rem; border-radius: 50%; margin-right: .5rem; border: 1px solid var(--color-mute); }
+.dot.available { background: var(--color-ember); border-color: var(--color-ember); }
+.dot.reserved { background: transparent; border-color: var(--color-ember); }
+.dot.sold { background: var(--color-mute); }
+.field { width: 100%; background: transparent; border: 0; border-bottom: 1px solid var(--color-line); padding: .6rem 0; color: inherit; }
+.field:focus { outline: none; border-color: var(--color-ember); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }

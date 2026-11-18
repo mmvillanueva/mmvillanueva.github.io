@@ -1,0 +1,36 @@
+---
+import Base from '../../layouts/Base.astro';
+import Plate from '../../components/Plate.astro';
+import ContactForm from '../../components/ContactForm.astro';
+import { works } from '../../data/works';
+export function getStaticPaths() {
+  return works.map((w, i) => ({ params: { slug: w.slug }, props: { w, prev: works[i - 1], next: works[i + 1] } }));
+}
+const { w, prev, next } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const labels = { available: 'Available', reserved: 'Reserved', sold: 'Sold' };
+---
+<Base title={`${w.title} · No. ${w.no}`} glow={w.hue}>
+  <a href={`${base}/#works`} class="text-xs text-mute hover:text-ember">← All works</a>
+  <article class="grid md:grid-cols-[1.2fr_1fr] gap-12 py-10">
+    <Plate hue={w.hue} class="w-full max-h-[80vh]" />
+    <div class="self-end">
+      <p class="text-mute">No. {w.no}</p>
+      <h1 class="font-serif text-6xl leading-none my-3">{w.title}</h1>
+      <dl class="text-mute grid gap-1 mb-6"><div>{w.year} · {w.medium}</div><div>{w.size}</div>
+        <div><span class={`dot ${w.status}`}></span>{labels[w.status]}</div></dl>
+      <p class="mb-8 max-w-md">{w.note}</p>
+      <button id="reveal" type="button" aria-expanded="false" aria-controls="price" class="text-ember underline underline-offset-4">Reveal price</button>
+      <p id="price" hidden class="font-serif text-3xl">{w.price}</p>
+    </div>
+  </article>
+  <nav class="flex justify-between text-xs py-8 border-t border-line">
+    {prev ? <a class="hover:text-ember" href={`${base}/works/${prev.slug}/`}>← {prev.title}</a> : <span />}
+    {next ? <a class="hover:text-ember" href={`${base}/works/${next.slug}/`}>{next.title} →</a> : <span />}
+  </nav>
+  <section class="py-16"><h2 class="text-mute text-xs uppercase tracking-widest mb-6">Inquire about No. {w.no}</h2><ContactForm work={w.no} /></section>
+</Base>
+<script>
+  const b = document.getElementById('reveal')!, p = document.getElementById('price')!;
+  b.addEventListener('click', () => { p.hidden = false; b.hidden = true; b.setAttribute('aria-expanded', 'true'); });
+</script>

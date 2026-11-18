@@ -1,0 +1,37 @@
+---
+const { work = '' } = Astro.props;
+const key = import.meta.env.PUBLIC_WEB3FORMS_KEY ?? '';
+---
+<form class="contact grid gap-6 max-w-xl" data-key={key}>
+  <input type="hidden" name="subject" value={work ? `Inquiry: No. ${work}` : 'Website inquiry'} />
+  {work && <input type="hidden" name="work" value={`No. ${work}`} />}
+  <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" style="display:none" />
+  <label>Name<input class="field" name="name" required autocomplete="name" /></label>
+  <label>Email<input class="field" type="email" name="email" required autocomplete="email" /></label>
+  <label>Message<textarea class="field" name="message" rows="4" required>{work ? `I’m interested in No. ${work}.` : ''}</textarea></label>
+  <label class="flex gap-3 text-mute text-xs">
+    <input type="checkbox" name="consent" required class="mt-1 accent-[#c8803a]" />
+    <span>I agree that my name and email are used only to reply to this inquiry, and are processed by Web3Forms to deliver it (Data Privacy Act of 2012).</span>
+  </label>
+  <button class="justify-self-start border border-ember text-ember px-5 py-2 hover:bg-ember hover:text-ink transition" type="submit">Send inquiry</button>
+  <p class="status text-mute" role="status" aria-live="polite"></p>
+</form>
+<script>
+  document.querySelectorAll<HTMLFormElement>('form.contact').forEach((f) => {
+    const out = f.querySelector('.status')!;
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!f.dataset.key) { out.textContent = 'Form key not set yet (PUBLIC_WEB3FORMS_KEY).'; return; }
+      out.textContent = 'Sending…';
+      const data = Object.fromEntries(new FormData(f));
+      try {
+        const r = await fetch('https://api.web3forms.com/submit', { method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ ...data, access_key: f.dataset.key }) });
+        const j = await r.json();
+        out.textContent = j.success ? 'Thank you. Your message was sent.' : (j.message || 'Something went wrong.');
+        if (j.success) f.reset();
+      } catch { out.textContent = 'Network error. Please try again.'; }
+    });
+  });
+</script>

@@ -1,0 +1,21 @@
+---
+import '../styles/global.css';
+import { artist } from '../data/works';
+const { title = `${artist.name} · Selected Works`, glow } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content={artist.statement} /><meta name="color-scheme" content="dark" />
+  <title>{title}</title>
+</head>
+<body class="min-h-screen" style={glow ? `background: radial-gradient(60rem 40rem at 70% 10%, hsl(${glow} 40% 14%), transparent), var(--color-ink)` : ''}>
+  <header class="flex justify-between items-baseline px-6 md:px-12 py-6 text-xs uppercase tracking-widest">
+    <a href={`${base}/`} class="hover:text-ember">{artist.name}</a>
+    <nav class="flex gap-6"><a href={`${base}/#works`} class="hover:text-ember">Works</a><a href={`${base}/#about`} class="hover:text-ember">About</a><a href={`${base}/#contact`} class="hover:text-ember">Contact</a></nav>
+  </header>
+  <main class="px-6 md:px-12"><slot /></main>
+  <footer class="px-6 md:px-12 py-12 text-mute text-xs">© {new Date().getFullYear()} {artist.name}. All rights reserved.</footer>
+</body>
+</html>
