@@ -13,8 +13,10 @@ const labels = { available: 'Available', reserved: 'Reserved', sold: 'Sold' };
 <Base title={`${w.title} · No. ${w.no}`} glow={w.hue}>
   <a href={`${base}/#works`} class="text-xs text-mute hover:text-ember">← All works</a>
   <article class="grid md:grid-cols-[1.2fr_1fr] gap-12 py-10">
-    <Plate hue={w.hue} rw={w.rw} rh={w.rh} src={w.image} alt={`${w.title}, ${w.medium}`} class="w-full max-h-[80vh]" />
-    <div class="self-end">
+    <button type="button" id="art" aria-label={`View ${w.title} larger`} class="reveal block w-full text-left cursor-zoom-in">
+      <Plate hue={w.hue} rw={w.rw} rh={w.rh} src={w.image} alt={`${w.title}, ${w.medium}`} class="w-full max-h-[80vh]" />
+    </button>
+    <div class="reveal self-end">
       <p class="text-mute">No. {w.no}</p>
       <h1 class="font-serif text-6xl leading-none my-3">{w.title}</h1>
       <dl class="text-mute grid gap-1 mb-6"><div>{w.year} · {w.medium}</div><div>{w.size}</div>
@@ -28,11 +30,60 @@ const labels = { available: 'Available', reserved: 'Reserved', sold: 'Sold' };
     {prev ? <a class="hover:text-ember" href={`${base}/works/${prev.slug}/`}>← {prev.title}</a> : <span />}
     {next ? <a class="hover:text-ember" href={`${base}/works/${next.slug}/`}>{next.title} →</a> : <span />}
   </nav>
+  <dialog id="lightbox" class="lightbox" aria-label={`${w.title}, enlarged`}>
+    <div id="lb-stage" class="lb-stage"></div>
+    <button type="button" id="lb-close" aria-label="Close enlarged view" class="absolute top-5 right-6 text-xs uppercase tracking-widest text-mute hover:text-ember">Close</button>
+  </dialog>
   {w.status === 'available' && (
   <section class="py-16"><h2 class="text-mute text-xs uppercase tracking-widest mb-6">Inquire about No. {w.no}</h2><ContactForm work={w.no} /></section>
   )}
 </Base>
 <script>
   const b = document.getElementById('reveal')!, p = document.getElementById('price')!;
-  b.addEventListener('click', () => { p.hidden = false; b.hidden = true; b.setAttribute('aria-expanded', 'true'); });
+  b.addEventListener('click', () => {
+    p.hidden = false; b.hidden = true; b.setAttribute('aria-expanded', 'true');
+    void p.offsetWidth; // force a reflow so the blur-to-sharp transition starts from the hidden state
+    p.classList.add('shown');
+  });
+
+  // Click-to-zoom lightbox: first click opens the viewer, clicking the artwork magnifies it, moving the pointer pans.
+  const art = document.getElementById('art');
+  const dlg = document.getElementById('lightbox') as HTMLDialogElement | null;
+  const stage = document.getElementById('lb-stage');
+  if (art && dlg && stage && typeof dlg.showModal === 'function') {
+    const still = matchMedia('(prefers-reduced-motion: reduce)');
+    const aspect = (el: Element): number => {
+      if (el instanceof HTMLImageElement) return el.naturalWidth && el.naturalHeight ? el.naturalWidth / el.naturalHeight : el.width / el.height;
+      const vb = (el as SVGSVGElement).viewBox?.baseVal;
+      return vb && vb.height ? vb.width / vb.height : 1;
+    };
+    const origin = (e: PointerEvent | MouseEvent) => {
+      const r = stage.getBoundingClientRect();
+      const img = stage.firstElementChild as HTMLElement | null;
+      if (img) img.style.transformOrigin = `${((e.clientX - r.left) / r.width) * 100}% ${((e.clientY - r.top) / r.height) * 100}%`;
+    };
+    const open = () => {
+      const src = art.querySelector('img, svg');
+      if (!src) return;
+      const clone = src.cloneNode(true) as HTMLElement;
+      ['loading', 'class', 'width', 'height'].forEach((a) => clone.removeAttribute(a));
+      stage.replaceChildren(clone);
+      stage.classList.remove('zoomed');
+      stage.style.setProperty('--ar', String(aspect(src)));
+      dlg.showModal();
+      void dlg.offsetWidth;
+      dlg.classList.add('is-open');
+    };
+    const close = () => {
+      dlg.classList.remove('is-open');
+      setTimeout(() => dlg.close(), still.matches ? 0 : 450);
+    };
+    art.addEventListener('click', open);
+    dlg.addEventListener('cancel', (e) => { e.preventDefault(); close(); });
+    dlg.addEventListener('click', (e) => { if (e.target === dlg) close(); });
+    dlg.addEventListener('close', () => stage.replaceChildren());
+    document.getElementById('lb-close')?.addEventListener('click', close);
+    stage.addEventListener('click', (e) => { origin(e); stage.classList.toggle('zoomed'); });
+    stage.addEventListener('pointermove', (e) => { if (stage.classList.contains('zoomed')) origin(e); });
+  }
 </script>

@@ -6,13 +6,13 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 <Base>
   <section class="pt-10 pb-10">
-    <h1 class="font-serif text-5xl md:text-7xl leading-none">{artist.name}</h1>
-    <p class="text-mute text-xs uppercase tracking-widest mt-4">Selected works</p>
+    <h1 class="reveal font-serif text-5xl md:text-7xl leading-none">{artist.name}</h1>
+    <p class="reveal text-mute text-xs uppercase tracking-widest mt-4">Selected works</p>
   </section>
   <section id="works" class="columns-1 sm:columns-2 lg:columns-3 gap-4 pb-24">
     {works.map((w) => (
-      <a href={`${base}/works/${w.slug}/`} class="card group block break-inside-avoid mb-6">
-        <Plate hue={w.hue} rw={w.rw} rh={w.rh} src={w.image} alt={`${w.title}, ${w.medium}`} />
+      <a href={`${base}/works/${w.slug}/`} class="card reveal group block break-inside-avoid mb-6">
+        <div class="frame"><Plate hue={w.hue} rw={w.rw} rh={w.rh} src={w.image} alt={`${w.title}, ${w.medium}`} /></div>
         <div class="flex justify-between text-xs text-mute pt-2 group-hover:text-ember transition-colors">
           <span>{w.title}</span><span><span class={`dot ${w.status}`} title={w.status}></span>No. {w.no}</span>
         </div>
