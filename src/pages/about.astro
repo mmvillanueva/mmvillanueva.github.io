@@ -4,7 +4,7 @@ import Plate from '../components/Plate.astro';
 import { artist } from '../data/works';
 ---
 <Base title={`About · ${artist.name}`}>
-  <section class="py-16 grid md:grid-cols-[1fr_1.4fr] gap-12 items-start max-w-5xl">
+  <section class="py-10 md:py-16 grid md:grid-cols-[1fr_1.4fr] gap-8 md:gap-16 items-start max-w-5xl mx-auto">
     <Plate hue={30} rw={4} rh={5} alt="Placeholder portrait of the artist" class="w-full max-w-sm" />
     <div>
       <h1 class="text-mute text-xs uppercase tracking-widest mb-6">About</h1>

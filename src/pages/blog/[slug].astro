@@ -7,7 +7,7 @@ const { p } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 <Base title={p.title}>
-  <article class="py-10 max-w-2xl">
+  <article class="py-10 max-w-2xl mx-auto">
     <a href={`${base}/blog/`} class="text-xs text-mute hover:text-ember">← All posts</a>
     <p class="text-mute text-xs mt-10">{fmtDate(p.date)}</p>
     <h1 class="font-serif text-5xl leading-tight my-4">{p.title}</h1>
