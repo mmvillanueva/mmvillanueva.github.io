@@ -1,7 +1,8 @@
 ---
 import '../styles/global.css';
+import { Font } from 'astro:assets';
 import { artist } from '../data/works';
-const { title = `${artist.name} · Selected Works`, glow } = Astro.props;
+const { title = `${artist.name} · Selected Works` } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 <html lang="en" data-theme="dark">
@@ -9,9 +10,11 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content={artist.statement} /><meta name="color-scheme" content="dark light" />
   <title>{title}</title>
+  <Font cssVariable="--font-instrument-serif" preload />
+  <Font cssVariable="--font-ibm-plex-mono" preload />
   <script is:inline>document.documentElement.classList.add('js');try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
-<body class:list={['min-h-screen', glow && 'glow']} style={glow ? `--g:${glow}` : undefined}>
+<body class="min-h-screen">
   <header class="glass sticky top-0 z-40 flex flex-wrap justify-between items-baseline gap-x-6 gap-y-1 px-6 md:px-12 py-4 text-xs uppercase tracking-widest">
     <a href={`${base}/`} class="hover:text-ember">{artist.name}</a>
     <nav class="flex gap-5 sm:gap-6 items-baseline ml-auto">
@@ -24,7 +27,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       </button>
     </nav>
   </header>
-  <main class="px-6 md:px-12"><slot /></main>
+  <div id="cursor" aria-hidden="true"><i></i></div>
+  <main class="px-6 md:px-12" style="background: var(--color-ink)"><slot /></main>
   <footer class="px-6 md:px-12 py-12 text-mute text-xs">© {new Date().getFullYear()} {artist.name}. All rights reserved.</footer>
   <script>
     // Soft staggered reveal as elements scroll into view
@@ -42,6 +46,60 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       revealEls.forEach((el) => io.observe(el));
     } else {
       revealEls.forEach((el) => el.classList.add('in'));
+    }
+    // Mouse-only polish: a warm light that follows the pointer across artwork cards, and (unless the visitor
+    // prefers reduced motion) a trailing cursor ring that grows with a label. Skipped on touch screens.
+    const ring = document.getElementById('cursor');
+    if (ring && matchMedia('(any-hover: hover) and (any-pointer: fine)').matches) {
+      const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const root = document.documentElement, text = ring.querySelector('i') as HTMLElement;
+      let tx = 0, ty = 0, x = 0, y = 0, running = false, started = false;
+      let frame: HTMLElement | null = null, lx = 0, ly = 0;
+      const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
+      const step = () => {
+        let moving = false;
+        if (!calm) {
+          x = lerp(x, tx, 0.22); y = lerp(y, ty, 0.22);
+          ring.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+          moving = Math.abs(tx - x) > 0.1 || Math.abs(ty - y) > 0.1;
+        }
+        if (frame) {
+          const r = frame.getBoundingClientRect();
+          const k = calm ? 1 : 0.14; // no lag for reduced motion: the light simply sits under the pointer
+          lx = lerp(lx, tx - r.left, k); ly = lerp(ly, ty - r.top, k);
+          frame.style.setProperty('--mx', `${lx}px`); frame.style.setProperty('--my', `${ly}px`);
+          moving = moving || Math.abs(tx - r.left - lx) > 0.1 || Math.abs(ty - r.top - ly) > 0.1;
+        }
+        running = moving;
+        if (moving) requestAnimationFrame(step);
+      };
+      const kick = () => { if (!running) { running = true; requestAnimationFrame(step); } };
+      const track = (e: PointerEvent) => {
+        tx = e.clientX; ty = e.clientY;
+        if (!started) { started = true; x = tx; y = ty; ring.classList.add('on'); }
+      };
+      root.classList.add('spot-on');
+      if (!calm) root.classList.add('cursor-on');
+      document.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') { track(e); kick(); } }, { passive: true });
+      document.addEventListener('pointerover', (e) => {
+        if (e.pointerType !== 'mouse') return;
+        track(e);
+        const t = e.target as Element;
+        const labelled = t.closest<HTMLElement>('[data-cursor]');
+        if (!calm) {
+          ring.dataset.state = labelled ? 'label' : t.closest('a, button, summary, input, textarea, label') ? 'link' : 'idle';
+          if (labelled) text.textContent = labelled.dataset.cursor ?? '';
+        }
+        const next = t.closest('.card')?.querySelector<HTMLElement>('.frame') ?? null;
+        if (next !== frame) {
+          frame = next;
+          if (frame) { const r = frame.getBoundingClientRect(); lx = tx - r.left; ly = ty - r.top; frame.style.setProperty('--mx', `${lx}px`); frame.style.setProperty('--my', `${ly}px`); }
+        }
+        kick();
+      });
+      addEventListener('scroll', kick, { passive: true });
+      root.addEventListener('mouseleave', () => ring.classList.remove('on'));
+      root.addEventListener('mouseenter', () => { if (started) ring.classList.add('on'); });
     }
     document.getElementById('theme')?.addEventListener('click', () => {
       const r = document.documentElement, next = r.dataset.theme === 'light' ? 'dark' : 'light';

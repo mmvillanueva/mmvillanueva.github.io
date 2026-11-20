@@ -1,8 +1,4 @@
 @import "tailwindcss";
-@import "@fontsource/instrument-serif/400.css";
-@import "@fontsource/instrument-serif/400-italic.css";
-@import "@fontsource/ibm-plex-mono/400.css";
-@import "@fontsource/ibm-plex-mono/500.css";
 
 @theme {
   --color-ink: #141311;
@@ -10,35 +6,42 @@
   --color-mute: #8f8a80;
   --color-line: #2a2723;
   --color-ember: #c8803a;
-  --font-serif: "Instrument Serif", Georgia, serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@theme inline {
+  --font-serif: var(--font-instrument-serif);
+  --font-mono: var(--font-ibm-plex-mono);
 }
 
 html { background: var(--color-ink); color: var(--color-ash); scroll-behavior: smooth; }
-body { font-family: var(--font-mono); font-size: 14px; line-height: 1.7; }
+body { font-family: var(--font-ibm-plex-mono); font-size: 14px; line-height: 1.7; }
 ::selection { background: var(--color-ember); color: var(--color-ink); }
 :focus-visible { outline: 1px solid var(--color-ember); outline-offset: 3px; }
 
-.card img, .card svg { display: block; width: 100%; height: auto; transition: opacity .6s var(--ease), transform 1.2s var(--ease); }
-.card:hover img, .card:hover svg { opacity: .88; }
-.dot { display: inline-block; width: .55rem; height: .55rem; border-radius: 50%; margin-right: .5rem; border: 1px solid var(--color-mute); }
-.dot.available { background: var(--color-ember); border-color: var(--color-ember); }
-.dot.reserved { background: transparent; border-color: var(--color-ember); }
-.dot.sold { background: var(--color-mute); }
+.card img, .card svg { display: block; width: 100%; height: auto; }
+:root { --status-available: #6fae7f; --status-reserved: #e0953f; --status-sold: #c9554d; }
+html[data-theme="light"] { --status-available: #2f7d4a; --status-reserved: #b4691b; --status-sold: #b23a34; }
+.dot { display: inline-block; width: .55rem; height: .55rem; border-radius: 50%; margin-right: .5rem; background: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 20%, transparent); }
+.dot.available, .st-available { --c: var(--status-available); }
+.dot.reserved, .st-reserved { --c: var(--status-reserved); }
+.dot.sold, .st-sold { --c: var(--status-sold); }
+.st-available, .st-reserved, .st-sold { color: var(--c); }
 .field { width: 100%; background: transparent; border: 0; border-bottom: 1px solid var(--color-line); padding: .6rem 0; color: inherit; }
 .field:focus { outline: none; border-color: var(--color-ember); }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+/* Reduced motion: fades (opacity/colour) are kept, movement is removed. The old rule switched off every transition, which made hovers snap. */
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto !important; } }
 
 /* Themes: dark is the default (set on <html data-theme="dark">) */
 html { color-scheme: dark; }
-html[data-theme="light"] { color-scheme: light; --color-ink: #f4f1ea; --color-ash: #1c1a17; --color-mute: #6b665c; --color-line: #ddd7cb; --color-ember: #a8601f; --glow-l: 88%; }
-.glow { background: radial-gradient(60rem 40rem at 70% 10%, hsl(var(--g) 40% var(--glow-l, 14%)), transparent), var(--color-ink); }
+html[data-theme="light"] { color-scheme: light; --color-ink: #f4f1ea; --color-ash: #1c1a17; --color-mute: #6b665c; --color-line: #ddd7cb; --color-ember: #a8601f; }
 html[data-theme="light"] .only-dark, html[data-theme="dark"] .only-light { display: none; }
 
 /* ---- Motion & polish ------------------------------------------------------
    One easing curve everywhere: fast start, long soft landing (reads as "calm").
    Only opacity/transform are animated so it stays smooth on mid-range phones. */
-:root { --ease: cubic-bezier(.22, 1, .36, 1); }
+:root { --ease: cubic-bezier(.22, 1, .36, 1); --ease-soft: cubic-bezier(.45, .05, .25, 1); }
+/* --ease = snappy landing (reveals); --ease-soft = even, unhurried (hovers) */
+a, button, summary { transition-duration: .5s; transition-timing-function: var(--ease-soft); }
+.transition-colors { transition-duration: .7s; transition-timing-function: var(--ease-soft); }
 html { scroll-padding-top: 6rem; } /* keeps anchor targets clear of the sticky header */
 
 /* Page-to-page crossfade (browser-native, zero JS). Unsupported browsers just navigate normally. */
@@ -67,14 +70,8 @@ html.js .reveal:not(.in) { opacity: 0; transform: translateY(14px); animation: r
 @keyframes reveal-fallback { to { opacity: 1; transform: none; } }
 
 /* Image frame: slow zoom on hover, clipped so the artwork never spills out */
-.frame { overflow: hidden; }
-@media (hover: hover) {
-  .card:hover .frame > img, .card:hover .frame > svg { transform: scale(1.03); }
-}
+.frame { overflow: hidden; position: relative; }
 
-/* Price reveal: blur-to-sharp */
-#price { opacity: 0; filter: blur(12px); transform: translateY(8px); transition: opacity 1.1s var(--ease), filter 1.1s var(--ease), transform 1.1s var(--ease); }
-#price.shown { opacity: 1; filter: none; transform: none; }
 
 /* Lightbox (native <dialog>: focus trap, Esc and backdrop handled by the browser) */
 html:has(dialog[open]) { overflow: hidden; }
@@ -87,7 +84,41 @@ dialog.lightbox.is-open::backdrop { opacity: 1; }
 .lb-stage > * { display: block; width: min(92vw, calc(88dvh * var(--ar, 1))); height: auto; aspect-ratio: var(--ar, 1); cursor: zoom-in; transition: transform .7s var(--ease); }
 .lb-stage.zoomed > * { transform: scale(2.4); cursor: zoom-out; }
 
+/* Artwork hover (no zoom): a warm light follows the pointer, a hairline frame settles in, the other works step back.
+   Only opacity/transform are animated, so it stays on the GPU. Position is set by JS (--mx/--my, mouse only). */
+@media (any-hover: hover) {
+  .frame::before { content: ""; position: absolute; inset: 14px; z-index: 1; pointer-events: none; border: 1px solid rgba(255, 244, 222, .42);
+    opacity: 0; transform: scale(1.035); transition: opacity 1.3s var(--ease-soft), transform 1.6s var(--ease-soft); }
+  .card:hover .frame::before { opacity: 1; transform: none; }
+  .card > .frame { transition: opacity 1.2s var(--ease-soft); }
+  :has(> .card:hover) > .card:not(:hover) > .frame { opacity: .42; }
+}
+
+/* Trailing cursor ring that grows and shows a label over artwork (mouse only; enabled by JS) */
+#cursor { display: none; position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none; opacity: 0; transition: opacity .5s var(--ease-soft); }
+html.cursor-on #cursor { display: block; }
+#cursor.on { opacity: 1; }
+html:has(dialog[open]) #cursor { opacity: 0; }
+#cursor i { position: absolute; left: 0; top: 0; width: 22px; height: 22px; margin: -11px 0 0 -11px; border: 1px solid color-mix(in srgb, var(--color-ash) 55%, transparent); border-radius: 50%;
+  display: grid; place-items: center; font-style: normal; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: transparent;
+  transition: width .7s var(--ease-soft), height .7s var(--ease-soft), margin .7s var(--ease-soft), border-color .5s, background-color .5s, color .5s; }
+#cursor[data-state="link"] i { width: 44px; height: 44px; margin: -22px 0 0 -22px; border-color: var(--color-ember); }
+#cursor[data-state="label"] i { width: 88px; height: 88px; margin: -44px 0 0 -44px; color: var(--color-ash); border-color: color-mix(in srgb, var(--color-ash) 70%, transparent);
+  background: color-mix(in srgb, var(--color-ink) 38%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+html.cursor-on [data-cursor] { cursor: none; }
+
+/* Collapsible inquiry panel: height animates via grid rows (no fixed heights); hidden content leaves the tab order */
+.collapse { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .9s var(--ease-soft), opacity .7s var(--ease-soft); }
+.collapse.open { grid-template-rows: 1fr; opacity: 1; }
+.collapse > div { min-height: 0; overflow: hidden; visibility: hidden; transition: visibility 0s linear .9s; }
+.collapse.open > div { visibility: visible; transition-delay: 0s; }
+.plus { display: inline-block; transition: transform .7s var(--ease-soft); }
+button[aria-expanded="true"] .plus { transform: rotate(45deg); }
+
 @media (prefers-reduced-motion: reduce) {
   html.js .reveal:not(.in) { opacity: 1; transform: none; animation: none; }
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+  .frame::before { transform: none; }
+  .collapse { transition: opacity .7s var(--ease-soft); }
+  .collapse > div, .plus, .lb-stage > * { transition: none; }
 }

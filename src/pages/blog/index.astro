@@ -11,7 +11,7 @@ const sorted = [...posts].sort((a, b) => b.date.localeCompare(a.date));
     <h1 class="text-mute text-xs uppercase tracking-widest mb-10">Blog</h1>
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
       {sorted.map((p) => (
-        <a href={`${base}/blog/${p.slug}/`} class="card reveal group block">
+        <a href={`${base}/blog/${p.slug}/`} class="card reveal group block" data-cursor="Read">
           <div class="frame"><Plate hue={p.hue} rw={p.rw} rh={p.rh} src={p.image} alt={`Cover image for ${p.title}`} /></div>
           <p class="text-mute text-xs mt-4">{fmtDate(p.date)}</p>
           <h2 class="font-serif text-3xl leading-tight group-hover:text-ember transition-colors">{p.title}</h2>

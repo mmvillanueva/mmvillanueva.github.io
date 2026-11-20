@@ -10,20 +10,32 @@ const { w, prev, next } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const labels = { available: 'Available', reserved: 'Reserved', sold: 'Sold' };
 ---
-<Base title={`${w.title} · No. ${w.no}`} glow={w.hue}>
+<Base title={`${w.title} · No. ${w.no}`}>
   <a href={`${base}/#works`} class="text-xs text-mute hover:text-ember">← All works</a>
   <article class="grid md:grid-cols-[1.2fr_1fr] gap-12 py-10">
-    <button type="button" id="art" aria-label={`View ${w.title} larger`} class="reveal block w-full text-left cursor-zoom-in">
+    <button type="button" id="art" aria-label={`View ${w.title} larger`} data-cursor="Zoom" class="reveal block w-full text-left cursor-zoom-in">
       <Plate hue={w.hue} rw={w.rw} rh={w.rh} src={w.image} alt={`${w.title}, ${w.medium}`} class="w-full max-h-[80vh]" />
     </button>
     <div class="reveal self-end">
       <p class="text-mute">No. {w.no}</p>
       <h1 class="font-serif text-6xl leading-none my-3">{w.title}</h1>
       <dl class="text-mute grid gap-1 mb-6"><div>{w.year} · {w.medium}</div><div>{w.size}</div>
-        <div><span class={`dot ${w.status}`}></span>{labels[w.status]}</div></dl>
+        <div class={`st-${w.status}`}><span class={`dot ${w.status}`}></span>{labels[w.status]}</div></dl>
+      <p class="font-serif text-4xl mb-6">{w.price}</p>
       <p class="mb-8 max-w-md">{w.note}</p>
-      <button id="reveal" type="button" aria-expanded="false" aria-controls="price" class="text-ember underline underline-offset-4">Reveal price</button>
-      <p id="price" hidden class="font-serif text-3xl">{w.price}</p>
+      {w.status === 'available' ? (
+        <>
+          <button id="inquire" type="button" aria-expanded="false" aria-controls="inquiry" class="inline-flex items-center gap-3 border border-ember text-ember px-5 py-2 hover:bg-ember hover:text-ink">
+            <span class="plus" aria-hidden="true">+</span> Inquire about this work
+          </button>
+          <div id="inquiry" class="collapse"><div class="pt-8 pb-1 px-1"><ContactForm work={w.no} /></div></div>
+        </>
+      ) : (
+        <p class="text-mute max-w-md border-t border-line pt-6">
+          {w.status === 'reserved' ? 'This work is currently reserved.' : 'This work has been sold.'}{' '}
+          <a class="text-ember underline underline-offset-4" href={`${base}/contact/`}>Contact the artist about similar work →</a>
+        </p>
+      )}
     </div>
   </article>
   <nav class="flex justify-between text-xs py-8 border-t border-line">
@@ -34,17 +46,21 @@ const labels = { available: 'Available', reserved: 'Reserved', sold: 'Sold' };
     <div id="lb-stage" class="lb-stage"></div>
     <button type="button" id="lb-close" aria-label="Close enlarged view" class="absolute top-5 right-6 text-xs uppercase tracking-widest text-mute hover:text-ember">Close</button>
   </dialog>
-  {w.status === 'available' && (
-  <section class="py-16"><h2 class="text-mute text-xs uppercase tracking-widest mb-6">Inquire about No. {w.no}</h2><ContactForm work={w.no} /></section>
-  )}
 </Base>
 <script>
-  const b = document.getElementById('reveal')!, p = document.getElementById('price')!;
-  b.addEventListener('click', () => {
-    p.hidden = false; b.hidden = true; b.setAttribute('aria-expanded', 'true');
-    void p.offsetWidth; // force a reflow so the blur-to-sharp transition starts from the hidden state
-    p.classList.add('shown');
-  });
+  // Inquiry panel: smooth expand/collapse, then move focus to the first field
+  const inquire = document.getElementById('inquire'), panel = document.getElementById('inquiry');
+  if (inquire && panel) {
+    inquire.addEventListener('click', () => {
+      const open = inquire.getAttribute('aria-expanded') !== 'true';
+      inquire.setAttribute('aria-expanded', String(open));
+      panel.classList.toggle('open', open);
+      if (open) setTimeout(() => {
+        panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        panel.querySelector<HTMLInputElement>('input[name="name"]')?.focus({ preventScroll: true });
+      }, 500);
+    });
+  }
 
   // Click-to-zoom lightbox: first click opens the viewer, clicking the artwork magnifies it, moving the pointer pans.
   const art = document.getElementById('art');
