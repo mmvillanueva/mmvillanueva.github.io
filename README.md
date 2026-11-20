@@ -18,7 +18,7 @@ One-time setup in the GitHub repo:
 - First-time seed (placeholder content): `cd studio && npx sanity dataset import seed.ndjson production`.
 - The site is static, so edits go live after a rebuild. A Sanity webhook sends a `repository_dispatch` event (`sanity-publish`)
   to GitHub, which runs `deploy.yml`. Webhook: sanity.io/manage > project > API > Webhooks.
-  - URL: `https://api.github.com/repos/jerohalili/mmvillanueva.github.io/dispatches`, method POST
+  - URL: `https://api.github.com/repos/mmvillanueva/mmvillanueva.github.io/dispatches`, method POST
   - Headers: `Authorization: Bearer <fine-grained token>`, `Accept: application/vnd.github+json`
   - Projection: `{"event_type":"sanity-publish"}`; filter: `_type in ["artwork","post","artist"]`; trigger on create, update, delete; drafts off.
   - The token is limited to this repository and has an expiry date: renew it before then or publishing will stop updating the site.

@@ -3,7 +3,7 @@ import { sanity, imageFields, hueFor, cdn, type SanityImage } from '../lib/sanit
 export interface Post { slug: string; title: string; date: string; excerpt: string; hue: number; rw: number; rh: number; body: string[]; image?: string; }
 const rows = await sanity.fetch<Array<{ slug: string; title: string; date: string; excerpt: string; body: string; img?: SanityImage | null }>>(
   `*[_type == "post" && defined(slug.current)] | order(date desc) {
-    "slug": slug.current, title, date, excerpt, body, ${imageFields('img')}
+    "slug": slug.current, title, date, excerpt, body, ${imageFields('image', 'img')}
   }`
 );
 // The editor writes plain text; a blank line separates paragraphs.

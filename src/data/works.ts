@@ -5,7 +5,7 @@ export interface Work { no: string; slug: string; title: string; year: number; m
   size: string; status: Status; price: number; note: string; hue: number; rw: number; rh: number; image?: string; }
 const rows = await sanity.fetch<Array<Omit<Work, 'image' | 'hue' | 'rw' | 'rh'> & { img?: SanityImage | null }>>(
   `*[_type == "artwork" && defined(slug.current)] | order(no asc) {
-    no, "slug": slug.current, title, year, medium, size, status, price, note, ${imageFields('img')}
+    no, "slug": slug.current, title, year, medium, size, status, price, note, ${imageFields('image', 'img')}
   }`
 );
 export const works: Work[] = rows.map(({ img, ...w }) => ({

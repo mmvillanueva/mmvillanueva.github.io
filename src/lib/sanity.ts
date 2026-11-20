@@ -12,9 +12,10 @@ export const sanity = createClient({
 
 export interface SanityImage { url: string; w: number; h: number; }
 
-// Query fragment: the image URL and its real pixel size (used for the aspect ratio).
-export const imageFields = (field: string) =>
-  `"${field}": ${field}.asset->{ url, "w": metadata.dimensions.width, "h": metadata.dimensions.height }`;
+// Query fragment: reads the document field `field` and returns it under the name `as`
+// (the image URL plus its real pixel size, used for the aspect ratio).
+export const imageFields = (field: string, as: string = field) =>
+  `"${as}": ${field}.asset->{ url, "w": metadata.dimensions.width, "h": metadata.dimensions.height }`;
 
 // Stable placeholder colour for items that have no photo yet.
 export const hueFor = (s: string) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
