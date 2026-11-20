@@ -1,4 +1,5 @@
 # MMVILLANUEVA – artist portfolio
+In progress
 Astro 7 + Tailwind 4. Content (artworks, blog posts, artist info) comes from Sanity project `t33pzyyd` at build time.
 ```
 npm install && cp .env.example .env   # add your Web3Forms access key
