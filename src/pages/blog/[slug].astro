@@ -6,7 +6,7 @@ export function getStaticPaths() { return posts.map((p) => ({ params: { slug: p.
 const { p } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
-<Base title={p.title}>
+<Base title={p.title} description={p.excerpt} image={p.image} type="article">
   <article class="py-10 max-w-2xl mx-auto">
     <a href={`${base}/blog/`} class="text-xs text-mute hover:text-ember">← All posts</a>
     <p class="text-mute text-xs mt-10">{fmtDate(p.date)}</p>

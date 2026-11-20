@@ -4,6 +4,9 @@ on:
   # Deploy every time main is updated
   push:
     branches: [ main ]
+  # Sent by the Sanity webhook when content is published (see README)
+  repository_dispatch:
+    types: [sanity-publish]
   # Allows running this workflow manually from the Actions tab
   workflow_dispatch:
 

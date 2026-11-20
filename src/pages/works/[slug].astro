@@ -2,7 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import Plate from '../../components/Plate.astro';
 import ContactForm from '../../components/ContactForm.astro';
-import { works } from '../../data/works';
+import { works, artist, formatPrice } from '../../data/works';
 export function getStaticPaths() {
   return works.map((w, i) => ({ params: { slug: w.slug }, props: { w, prev: works[i - 1], next: works[i + 1] } }));
 }
@@ -10,18 +10,21 @@ const { w, prev, next } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const labels = { available: 'Available', reserved: 'Reserved', sold: 'Sold' };
 ---
-<Base title={`${w.title} · No. ${w.no}`}>
+<Base title={`${w.title} · No. ${w.no}`} description={w.note} image={w.image}>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'VisualArtwork',
+    name: w.title, creator: { '@type': 'Person', name: artist.name }, dateCreated: String(w.year), artMedium: w.medium, description: w.note,
+    ...(w.image ? { image: w.image } : {}) })} />
   <a href={`${base}/#works`} class="text-xs text-mute hover:text-ember">← All works</a>
   <article class="grid md:grid-cols-[1.2fr_1fr] gap-12 py-10">
     <button type="button" id="art" aria-label={`View ${w.title} larger`} data-cursor="Zoom" class="reveal block w-full text-left cursor-zoom-in">
-      <Plate hue={w.hue} rw={w.rw} rh={w.rh} src={w.image} alt={`${w.title}, ${w.medium}`} class="w-full max-h-[80vh]" />
+      <Plate hue={w.hue} rw={w.rw} rh={w.rh} src={w.image} alt={`${w.title}, ${w.medium}`} eager sizes="(min-width: 768px) 55vw, 100vw" class="w-full max-h-[80vh]" />
     </button>
     <div class="reveal self-end">
       <p class="text-mute">No. {w.no}</p>
       <h1 class="font-serif text-6xl leading-none my-3">{w.title}</h1>
       <dl class="text-mute grid gap-1 mb-6"><div>{w.year} · {w.medium}</div><div>{w.size}</div>
         <div class={`st-${w.status}`}><span class={`dot ${w.status}`}></span>{labels[w.status]}</div></dl>
-      <p class="font-serif text-4xl mb-6">{w.price}</p>
+      <p class="font-serif text-4xl mb-6">{formatPrice(w.price)}</p>
       <p class="mb-8 max-w-md">{w.note}</p>
       {w.status === 'available' ? (
         <>
@@ -82,7 +85,7 @@ const labels = { available: 'Available', reserved: 'Reserved', sold: 'Sold' };
       const src = art.querySelector('img, svg');
       if (!src) return;
       const clone = src.cloneNode(true) as HTMLElement;
-      ['loading', 'class', 'width', 'height'].forEach((a) => clone.removeAttribute(a));
+      ['loading', 'class', 'width', 'height', 'srcset', 'sizes'].forEach((a) => clone.removeAttribute(a));
       stage.replaceChildren(clone);
       stage.classList.remove('zoomed');
       stage.style.setProperty('--ar', String(aspect(src)));

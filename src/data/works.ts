@@ -1,20 +1,25 @@
-// Placeholder data. Shape mirrors the future Sanity "artwork" schema.
+// Content comes from Sanity (project t33pzyyd) at build time. Shapes are unchanged so pages need no edits.
+import { sanity, imageFields, hueFor, cdn, type SanityImage } from '../lib/sanity';
 export type Status = 'available' | 'reserved' | 'sold';
 export interface Work { no: string; slug: string; title: string; year: number; medium: string;
-  size: string; status: Status; price: string; note: string; hue: number; rw: number; rh: number; image?: string; }
-export const works: Work[] = [
-  { no: '001', slug: 'quiet-tide', title: 'Quiet Tide', year: 2025, medium: 'Oil on canvas', size: '90 × 120 cm', status: 'available', price: '₱ 85,000', note: 'A calm stretch of shoreline at low tide, rendered in soft blues and greys. The still water reflects a pale sky, capturing the hush between waves.', hue: 200, rw: 4, rh: 5 },
-  { no: '002', slug: 'ember-field', title: 'Ember Field', year: 2025, medium: 'Acrylic on panel', size: '60 × 80 cm', status: 'available', price: '₱ 48,000', note: 'Warm ochres and burnt oranges sweep across a small panel, suggesting dry grass caught in late afternoon light. A study in heat and stillness.', hue: 28, rw: 1, rh: 1 },
-  { no: '003', slug: 'low-light', title: 'Low Light', year: 2024, medium: 'Charcoal on paper', size: '50 × 70 cm', status: 'reserved', price: '₱ 32,000', note: 'Deep shadows and soft smudges define an interior scene at dusk. Charcoal allows the darkness to pool in corners while a single source of light holds the center.', hue: 260, rw: 5, rh: 4 },
-  { no: '004', slug: 'salt-and-iron', title: 'Salt & Iron', year: 2024, medium: 'Mixed media', size: '100 × 100 cm', status: 'sold', price: '₱ 120,000', note: 'Textured layers of salt, pigment, and metal leaf form an abstracted horizon. The surface shifts with the light, moving between cool greys and faint iridescence.', hue: 150, rw: 3, rh: 4 },
-  { no: '005', slug: 'after-rain', title: 'After Rain', year: 2023, medium: 'Oil on linen', size: '70 × 90 cm', status: 'available', price: '₱ 64,000', note: 'Wet pavement mirrors the streetlamps of a quiet neighborhood. Oil on linen catches the sheen of rain and the soft glow of evening.', hue: 330, rw: 4, rh: 3 },
-  { no: '006', slug: 'night-garden', title: 'Night Garden', year: 2025, medium: 'Oil on canvas', size: '60 × 90 cm', status: 'available', price: '₱ 58,000', note: 'Foliage deepens into indigo and violet under moonlight. Leaves and stems blur at the edges, as if seen through a window late at night.', hue: 120, rw: 2, rh: 3 },
-  { no: '007', slug: 'paper-moon', title: 'Paper Moon', year: 2025, medium: 'Watercolor on paper', size: '30 × 40 cm', status: 'available', price: '₱ 18,000', note: 'A delicate wash of pale yellow hangs above a flat, dark landscape. Watercolor keeps the moon soft and diffuse, like light on thin paper.', hue: 45, rw: 3, rh: 4 },
-  { no: '008', slug: 'still-water', title: 'Still Water', year: 2024, medium: 'Oil on linen', size: '120 × 80 cm', status: 'sold', price: '₱ 150,000', note: 'A wide, horizontal expanse of water holds a perfect mirror of the sky. The surface barely ripples, suggesting early morning before the wind rises.', hue: 190, rw: 3, rh: 2 },
-  { no: '009', slug: 'copper-hour', title: 'Copper Hour', year: 2024, medium: 'Acrylic on canvas', size: '80 × 80 cm', status: 'reserved', price: '₱ 72,000', note: 'The brief window before sunset when light turns copper. Warm metallic tones dominate a square canvas, with shadows just beginning to lengthen.', hue: 20, rw: 1, rh: 1 },
-  { no: '010', slug: 'fold', title: 'Fold', year: 2024, medium: 'Ink on paper', size: '40 × 60 cm', status: 'available', price: '₱ 22,000', note: 'A single gestural line folds back on itself, creating depth from minimal means. Ink on paper keeps the mark immediate and uncorrected.', hue: 300, rw: 2, rh: 3 },
-  { no: '011', slug: 'harbor-grey', title: 'Harbor Grey', year: 2023, medium: 'Oil on panel', size: '50 × 40 cm', status: 'sold', price: '₱ 45,000', note: 'Boats rest at dock under an overcast sky. Muted greys and blues describe a working harbor in quiet repose, the water still against the hulls.', hue: 215, rw: 5, rh: 4 },
-  { no: '012', slug: 'last-light', title: 'Last Light', year: 2023, medium: 'Mixed media', size: '100 × 125 cm', status: 'available', price: '₱ 135,000', note: 'The final moments of daylight slip across a field. Gold leaf catches the last rays, set against deepening greens and shadowed earth.', hue: 60, rw: 4, rh: 5 },
-];
-export const artist = { name: 'Mario Villanueva', email: 'hello@example.com',
-  statement: 'Mario Villanueva is a Filipino visual artist working primarily in oil, acrylic, watercolor, and charcoal. His practice centers on quiet, observed moments—light on water, the hush of a garden at dusk, the stillness of everyday objects—rendered with a restrained palette and an eye for atmosphere. Based in Manila, he shows regularly in local galleries and artist-run spaces.' };
+  size: string; status: Status; price: number; note: string; hue: number; rw: number; rh: number; image?: string; }
+const rows = await sanity.fetch<Array<Omit<Work, 'image' | 'hue' | 'rw' | 'rh'> & { img?: SanityImage | null }>>(
+  `*[_type == "artwork" && defined(slug.current)] | order(no asc) {
+    no, "slug": slug.current, title, year, medium, size, status, price, note, ${imageFields('img')}
+  }`
+);
+export const works: Work[] = rows.map(({ img, ...w }) => ({
+  ...w,
+  image: cdn(img),
+  hue: hueFor(w.slug),
+  rw: img?.w ?? 4,
+  rh: img?.h ?? 5,
+}));
+export const formatPrice = (n: number) =>
+  new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 }).format(n);
+const defaults = { name: 'Mario Villanueva', email: '', statement: '' };
+const a = await sanity.fetch<{ name?: string; email?: string; statement?: string; portrait?: SanityImage | null; studio?: SanityImage | null } | null>(
+  `*[_id == "artist"][0] { name, email, statement, ${imageFields('portrait')}, ${imageFields('studio')} }`
+);
+export const artist = { ...defaults, ...Object.fromEntries(Object.entries(a ?? {}).filter(([, v]) => v)),
+  portrait: cdn(a?.portrait), studio: cdn(a?.studio) } as typeof defaults & { portrait?: string; studio?: string };

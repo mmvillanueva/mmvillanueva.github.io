@@ -2,14 +2,27 @@
 import '../styles/global.css';
 import { Font } from 'astro:assets';
 import { artist } from '../data/works';
-const { title = `${artist.name} · Selected Works` } = Astro.props;
+const { title = `${artist.name} · Selected Works`, description = artist.statement, image, type = 'website', noindex = false } = Astro.props;
+const metaDesc = description.length > 160 ? description.slice(0, 157).trimEnd() + '…' : description;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = image ? new URL(image, Astro.site).href : undefined;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
-<html lang="en" data-theme="dark">
+<html lang="en" translate="no" class="notranslate" data-theme="dark">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content={artist.statement} /><meta name="color-scheme" content="dark light" /><meta name="translate" content="no" />
+  <meta name="description" content={metaDesc} /><meta name="color-scheme" content="dark light" /><meta name="google" content="notranslate" />
   <title>{title}</title>
+  <link rel="canonical" href={canonical} />
+  {noindex && <meta name="robots" content="noindex" />}
+  <meta property="og:site_name" content={artist.name} /><meta property="og:locale" content="en_PH" />
+  <meta property="og:type" content={type} /><meta property="og:title" content={title} />
+  <meta property="og:description" content={metaDesc} /><meta property="og:url" content={canonical} />
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+  <meta name="twitter:title" content={title} /><meta name="twitter:description" content={metaDesc} />
+  {ogImage && <meta name="twitter:image" content={ogImage} />}
+  <slot name="head" />
   <Font cssVariable="--font-instrument-serif" preload />
   <Font cssVariable="--font-ibm-plex-mono" preload />
   <script is:inline>document.documentElement.classList.add('js');try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
@@ -29,7 +42,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   </header>
   <div id="cursor" aria-hidden="true"><i></i></div>
   <main class="px-6 md:px-12" style="background: var(--color-ink)"><slot /></main>
-  <footer class="px-6 md:px-12 py-12 text-mute text-xs">© {new Date().getFullYear()} {artist.name}. All rights reserved.</footer>
+  <footer class="px-6 md:px-12 py-12 text-mute text-xs text-center">© {new Date().getFullYear()} {artist.name}. All rights reserved.</footer>
   <script>
     // Soft staggered reveal as elements scroll into view
     const revealEls = document.querySelectorAll<HTMLElement>('.reveal');

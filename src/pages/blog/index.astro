@@ -6,7 +6,7 @@ import { artist } from '../../data/works';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const sorted = [...posts].sort((a, b) => b.date.localeCompare(a.date));
 ---
-<Base title={`Blog · ${artist.name}`}>
+<Base title={`Blog · ${artist.name}`} description={`Studio notes and stories behind the paintings by ${artist.name}.`}>
   <section class="py-16">
     <h1 class="text-mute text-xs uppercase tracking-widest mb-10">Blog</h1>
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
