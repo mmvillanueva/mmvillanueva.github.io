@@ -1,0 +1,22 @@
+---
+import Plate from './Plate.astro';
+import type { PostMedia } from '../lib/media';
+const { media, title, class: cls = '' } = Astro.props as { media: PostMedia; title: string; class?: string };
+---
+<figure class={cls}>
+  {media.type === 'image' && <Plate src={media.src} rw={media.w} rh={media.h} alt={media.caption ?? `Photo for ${title}`} eager sizes="(min-width: 672px) 672px, 100vw" class="w-full" />}
+  {media.type === 'linkImage' && <img src={media.src} alt={media.caption ?? `Photo for ${title}`} loading="eager" decoding="async" referrerpolicy="no-referrer" class="w-full h-auto" />}
+  {media.type === 'video' && (
+    <video controls playsinline preload="metadata" poster={media.poster} class="w-full max-h-[80vh] bg-black">
+      <source src={media.src} type={media.mime} />
+      <a href={media.src}>Download the video</a>
+    </video>
+  )}
+  {media.type === 'embed' && (
+    <div class="aspect-video w-full">
+      <iframe src={media.src} title={media.caption ?? `${media.provider} video: ${title}`} loading="lazy" allowfullscreen
+        allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" class="w-full h-full border-0"></iframe>
+    </div>
+  )}
+  {media.caption && <figcaption class="text-mute text-xs mt-3">{media.caption}</figcaption>}
+</figure>
