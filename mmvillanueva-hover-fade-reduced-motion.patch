@@ -1,0 +1,12 @@
+diff --git a/src/styles/global.css b/src/styles/global.css
+index ee6651f..5f47657 100644
+--- a/src/styles/global.css
++++ b/src/styles/global.css
+@@ -113,7 +113,6 @@ html:has(dialog[open]) #cursor { opacity: 0; }
+ button[aria-expanded="true"] .plus { transform: rotate(45deg); }
+ 
+ @media (prefers-reduced-motion: reduce) {
+-  .frame::before { transition: none; }
+   html.js .reveal:not(.in) { opacity: 1; transform: none; animation: none; }
+   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+   .collapse { transition: opacity .7s var(--ease-soft); }

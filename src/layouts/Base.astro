@@ -60,14 +60,13 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     } else {
       revealEls.forEach((el) => el.classList.add('in'));
     }
-    // Mouse-only polish: a warm light that follows the pointer across artwork cards, and (unless the visitor
-    // prefers reduced motion) a trailing cursor ring that grows with a label. Skipped on touch screens.
+    // Mouse-only polish: (unless the visitor prefers reduced motion) a trailing cursor ring that grows with a label.
+    // Skipped on touch screens.
     const ring = document.getElementById('cursor');
     if (ring && matchMedia('(any-hover: hover) and (any-pointer: fine)').matches) {
       const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
       const root = document.documentElement, text = ring.querySelector('i') as HTMLElement;
       let tx = 0, ty = 0, x = 0, y = 0, running = false, started = false;
-      let frame: HTMLElement | null = null, lx = 0, ly = 0;
       const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
       const step = () => {
         let moving = false;
@@ -75,13 +74,6 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
           x = lerp(x, tx, 0.22); y = lerp(y, ty, 0.22);
           ring.style.transform = `translate3d(${x}px, ${y}px, 0)`;
           moving = Math.abs(tx - x) > 0.1 || Math.abs(ty - y) > 0.1;
-        }
-        if (frame) {
-          const r = frame.getBoundingClientRect();
-          const k = calm ? 1 : 0.14; // no lag for reduced motion: the light simply sits under the pointer
-          lx = lerp(lx, tx - r.left, k); ly = lerp(ly, ty - r.top, k);
-          frame.style.setProperty('--mx', `${lx}px`); frame.style.setProperty('--my', `${ly}px`);
-          moving = moving || Math.abs(tx - r.left - lx) > 0.1 || Math.abs(ty - r.top - ly) > 0.1;
         }
         running = moving;
         if (moving) requestAnimationFrame(step);
@@ -91,7 +83,6 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         tx = e.clientX; ty = e.clientY;
         if (!started) { started = true; x = tx; y = ty; ring.classList.add('on'); }
       };
-      root.classList.add('spot-on');
       if (!calm) root.classList.add('cursor-on');
       document.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') { track(e); kick(); } }, { passive: true });
       document.addEventListener('pointerover', (e) => {
@@ -102,11 +93,6 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         if (!calm) {
           ring.dataset.state = labelled ? 'label' : t.closest('a, button, summary, input, textarea, label') ? 'link' : 'idle';
           if (labelled) text.textContent = labelled.dataset.cursor ?? '';
-        }
-        const next = t.closest('.card')?.querySelector<HTMLElement>('.frame') ?? null;
-        if (next !== frame) {
-          frame = next;
-          if (frame) { const r = frame.getBoundingClientRect(); lx = tx - r.left; ly = ty - r.top; frame.style.setProperty('--mx', `${lx}px`); frame.style.setProperty('--my', `${ly}px`); }
         }
         kick();
       });
