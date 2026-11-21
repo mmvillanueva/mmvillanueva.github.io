@@ -17,7 +17,7 @@ const labels = { available: 'Available', reserved: 'Reserved', sold: 'Sold' };
   <a href={`${base}/#works`} class="text-xs text-mute hover:text-ember">← All works</a>
   <article class="grid md:grid-cols-[1.2fr_1fr] gap-12 py-10">
     <button type="button" id="art" aria-label={`View ${w.title} larger`} data-cursor="Zoom" class="reveal block w-full text-left cursor-zoom-in">
-      <Plate hue={w.hue} rw={w.rw} rh={w.rh} src={w.image} alt={`${w.title}, ${w.medium}`} eager sizes="(min-width: 768px) 55vw, 100vw" class="w-full max-h-[80vh]" />
+      <Plate hue={w.hue} rw={w.rw} rh={w.rh} src={w.image} alt={`${w.title}, ${w.medium}`} eager sizes="(min-width: 768px) 55vw, 100vw" class={w.image ? 'w-auto max-w-full max-h-[80vh] mx-auto md:mr-0 md:ml-auto' : 'w-full max-h-[80vh]'} />
     </button>
     <div class="reveal self-end">
       <p class="text-mute">No. {w.no}</p>

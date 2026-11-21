@@ -15,7 +15,7 @@ const labels = { available: 'Available', reserved: 'Reserved', sold: 'Sold' };
       <a href={`${base}/works/${w.slug}/`} class="card reveal group block break-inside-avoid mb-6" data-cursor="View">
         <div class="frame"><Plate hue={w.hue} rw={w.rw} rh={w.rh} src={w.image} alt={`${w.title}, ${w.medium}`} /></div>
         <div class="flex justify-between text-xs text-mute pt-2 group-hover:text-ember transition-colors">
-          <span>{w.title}</span><span><span class={`dot ${w.status}`} role="img" aria-label={labels[w.status]} title={labels[w.status]}></span>No. {w.no}</span>
+          <span>{w.title}</span><span><span class={`dot ${w.status}`} role={w.status === 'available' ? 'img' : undefined} aria-hidden={w.status === 'available' ? undefined : 'true'} aria-label={labels[w.status]} title={labels[w.status]}></span>{w.status !== 'available' && <>{labels[w.status]} · </>}No. {w.no}</span>
         </div>
       </a>
     ))}
