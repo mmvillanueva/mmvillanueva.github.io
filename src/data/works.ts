@@ -17,9 +17,14 @@ export const works: Work[] = rows.map(({ img, ...w }) => ({
 }));
 export const formatPrice = (n: number) =>
   new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 }).format(n);
+type Hotspot = { x: number; y: number };
 const defaults = { name: 'Mario Villanueva', email: '', statement: '' };
-const a = await sanity.fetch<{ name?: string; email?: string; statement?: string; portrait?: SanityImage | null; studio?: SanityImage | null } | null>(
-  `*[_id == "artist"][0] { name, email, statement, ${imageFields('portrait')}, ${imageFields('studio')} }`
+const a = await sanity.fetch<{ name?: string; email?: string; statement?: string; portrait?: SanityImage | null; studio?: SanityImage | null; portraitHotspot?: Hotspot | null; studioHotspot?: Hotspot | null } | null>(
+  `*[_id == "artist"][0] { name, email, statement, ${imageFields('portrait')}, "portraitHotspot": portrait.hotspot{ x, y }, ${imageFields('studio')}, "studioHotspot": studio.hotspot{ x, y } }`
 );
-export const artist = { ...defaults, ...Object.fromEntries(Object.entries(a ?? {}).filter(([, v]) => v)),
-  portrait: cdn(a?.portrait), studio: cdn(a?.studio) } as typeof defaults & { portrait?: string; studio?: string };
+// Focus point chosen in the Studio (hotspot), used to decide what stays visible when a photo is cropped to its frame.
+const focus = (h?: Hotspot | null) => (h ? `${(h.x * 100).toFixed(1)}% ${(h.y * 100).toFixed(1)}%` : 'center');
+const { portrait, studio, portraitHotspot, studioHotspot, ...text } = a ?? {};
+export const artist = { ...defaults, ...Object.fromEntries(Object.entries(text).filter(([, v]) => v)),
+  portrait: cdn(portrait), studio: cdn(studio), portraitFocus: focus(portraitHotspot), studioFocus: focus(studioHotspot) } as
+  typeof defaults & { portrait?: string; studio?: string; portraitFocus: string; studioFocus: string };

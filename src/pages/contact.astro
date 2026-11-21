@@ -12,6 +12,6 @@ import { artist } from '../data/works';
       <p class="text-mute mb-10 max-w-xl">Interested in a specific painting? If it is available, you will find an inquiry form on its page.</p>
       <ContactForm />
     </div>
-    <Plate hue={200} rw={3} rh={4} src={artist.studio} alt={artist.studio ? `${artist.name}'s studio` : "Placeholder photo of the artist's studio"} class="w-full max-w-sm md:justify-self-end" />
+    <Plate hue={200} rw={3} rh={4} src={artist.studio} cover pos={artist.studioFocus} alt={artist.studio ? `${artist.name}'s studio` : "Placeholder photo of the artist's studio"} class="w-full max-w-sm md:justify-self-end" />
   </section>
 </Base>

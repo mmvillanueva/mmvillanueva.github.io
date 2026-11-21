@@ -27,11 +27,10 @@ export const post = defineType({
       type: 'object',
       description:
         'Shown at the top of the post instead of the cover image. Leave it empty to keep showing the cover image. The cover image is still used on the blog list.',
-      options: {collapsible: true, collapsed: false},
       fields: [
         defineField({
           name: 'kind',
-          title: 'What is it?',
+          title: 'File type',
           type: 'string',
           options: {
             layout: 'radio',

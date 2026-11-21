@@ -5,7 +5,7 @@ import { artist } from '../data/works';
 ---
 <Base title={`About · ${artist.name}`}>
   <section class="py-10 md:py-16 grid md:grid-cols-[1fr_1.4fr] gap-8 md:gap-16 items-start max-w-5xl mx-auto">
-    <Plate hue={30} rw={4} rh={5} src={artist.portrait} alt={artist.portrait ? `Portrait of ${artist.name}` : 'Placeholder portrait of the artist'} class="w-full max-w-sm" />
+    <Plate hue={30} rw={4} rh={5} src={artist.portrait} cover pos={artist.portraitFocus} alt={artist.portrait ? `Portrait of ${artist.name}` : 'Placeholder portrait of the artist'} class="w-full max-w-sm" />
     <div>
       <h1 class="text-mute text-xs uppercase tracking-widest mb-6">About</h1>
       <p class="font-serif text-4xl leading-snug mb-8">{artist.statement}</p>
